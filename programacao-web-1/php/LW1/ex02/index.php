@@ -28,7 +28,6 @@
 
         echo "<script>
             alert(" . json_encode($mensagem) . ");
-            window.location.href = 'index.php';
         </script>";
     }
     ?>
