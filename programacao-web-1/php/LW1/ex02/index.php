@@ -28,7 +28,7 @@
 
         echo "<script>
             alert(" . json_encode($mensagem) . ");
-            window.location.href = 'exercicio2.php';
+            window.location.href = '../';
         </script>";
     }
     ?>
