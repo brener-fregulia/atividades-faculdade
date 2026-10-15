@@ -128,6 +128,11 @@ class App(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self.caminho = []
+        self.selecao = {
+            "origem": None,
+            "destino": None,
+        }
+        self.proxima_selecao = "origem"
 
         self._montar_controles()
         self._montar_grafo()
@@ -155,10 +160,7 @@ class App(ctk.CTk):
         ctk.CTkLabel(
             painel,
             text="Dijkstra\nAlto Vale do Itajai",
-            font=ctk.CTkFont(
-                size=24,
-                weight="bold",
-            ),
+            font=ctk.CTkFont(size=24, weight="bold"),
             justify="left",
         ).pack(
             anchor="w",
@@ -190,12 +192,16 @@ class App(ctk.CTk):
             border_color=COR_ORIGEM,
             button_color=COR_ORIGEM,
             text_color=COR_BRANCO,
+            command=lambda valor: self._selecionar_cidade(
+                self._sigla(valor),
+                "origem",
+            ),
         )
         self.origem.pack(
             padx=22,
             pady=(6, 16),
         )
-        self.origem.set("ITU - Ituporanga")
+        self.origem.set("Selecione a origem")
 
         ctk.CTkLabel(
             painel,
@@ -214,12 +220,16 @@ class App(ctk.CTk):
             border_color=COR_DESTINO,
             button_color=COR_DESTINO,
             text_color=COR_BRANCO,
+            command=lambda valor: self._selecionar_cidade(
+                self._sigla(valor),
+                "destino",
+            ),
         )
         self.destino.pack(
             padx=22,
             pady=(6, 16),
         )
-        self.destino.set("RDO - Rio do Oeste")
+        self.destino.set("Selecione o destino")
 
         ctk.CTkLabel(
             painel,
@@ -371,14 +381,8 @@ class App(ctk.CTk):
             sticky="nsew",
         )
 
-        frame.grid_rowconfigure(
-            0,
-            weight=1,
-        )
-        frame.grid_columnconfigure(
-            0,
-            weight=1,
-        )
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
 
         self.fig, self.ax = plt.subplots(
             figsize=(10, 7),
@@ -396,27 +400,88 @@ class App(ctk.CTk):
             sticky="nsew",
         )
 
+        self.canvas.mpl_connect(
+            "button_press_event",
+            self._clicar_no,
+        )
+
     def _sigla(self, valor):
         return valor.split(" - ", 1)[0]
 
+    def _texto_cidade(self, sigla):
+        return f"{sigla} - {CIDADES[sigla]}"
+
     def _mostrar(self, texto):
-        self.resultado.configure(
-            state="normal",
+        self.resultado.configure(state="normal")
+        self.resultado.delete("1.0", "end")
+        self.resultado.insert("1.0", texto)
+        self.resultado.configure(state="disabled")
+
+    def _selecionar_cidade(self, sigla, tipo):
+        self.selecao[tipo] = sigla
+        self.caminho = []
+
+        if tipo == "origem":
+            self.origem.set(self._texto_cidade(sigla))
+            self.proxima_selecao = "destino"
+        else:
+            self.destino.set(self._texto_cidade(sigla))
+            self.proxima_selecao = "origem"
+
+        if self.selecao["origem"] and self.selecao["destino"]:
+            self._mostrar(
+                "Origem e destino selecionados.\n" "Escolha o criterio e calcule."
+            )
+        else:
+            self._mostrar("Selecione origem, destino e criterio.")
+
+        self.desenhar()
+
+    def _clicar_no(self, evento):
+        if evento.inaxes != self.ax:
+            return
+
+        no_clicado = None
+        menor_distancia = float("inf")
+
+        for sigla, posicao in POS.items():
+            x, y = self.ax.transData.transform(posicao)
+
+            distancia = ((evento.x - x) ** 2 + (evento.y - y) ** 2) ** 0.5
+
+            if distancia < menor_distancia:
+                menor_distancia = distancia
+                no_clicado = sigla
+
+        if menor_distancia > 22:
+            return
+
+        self._selecionar_cidade(
+            no_clicado,
+            self.proxima_selecao,
         )
 
-        self.resultado.delete(
-            "1.0",
-            "end",
+    def _destacar_legenda(
+        self,
+        sigla,
+        cor,
+        cor_borda,
+    ):
+        if not sigla:
+            return
+
+        item = self.itens_legenda[sigla]
+
+        item.configure(
+            fg_color=cor,
+            border_width=1,
+            border_color=cor_borda,
         )
 
-        self.resultado.insert(
-            "1.0",
-            texto,
-        )
-
-        self.resultado.configure(
-            state="disabled",
-        )
+        for label in item.winfo_children():
+            label.configure(
+                text_color=COR_BRANCO,
+            )
 
     def _atualizar_legenda(self):
         for item in self.itens_legenda.values():
@@ -430,39 +495,25 @@ class App(ctk.CTk):
                     text_color=COR_TEXTO,
                 )
 
-        if not self.caminho:
-            return
-
-        origem = self.itens_legenda[self.caminho[0]]
-
-        destino = self.itens_legenda[self.caminho[-1]]
-
-        origem.configure(
-            fg_color=COR_ORIGEM,
-            border_width=1,
-            border_color=COR_BORDA_ORIGEM,
+        self._destacar_legenda(
+            self.selecao["origem"],
+            COR_ORIGEM,
+            COR_BORDA_ORIGEM,
         )
 
-        destino.configure(
-            fg_color=COR_DESTINO,
-            border_width=1,
-            border_color=COR_BORDA_DESTINO,
+        self._destacar_legenda(
+            self.selecao["destino"],
+            COR_DESTINO,
+            COR_BORDA_DESTINO,
         )
-
-        for label in origem.winfo_children():
-            label.configure(
-                text_color=COR_BRANCO,
-            )
-
-        for label in destino.winfo_children():
-            label.configure(
-                text_color=COR_BRANCO,
-            )
 
     def calcular(self):
-        origem = self._sigla(self.origem.get())
+        origem = self.selecao["origem"]
+        destino = self.selecao["destino"]
 
-        destino = self._sigla(self.destino.get())
+        if not origem or not destino:
+            self._mostrar("Selecione uma origem e um destino.")
+            return
 
         if origem == destino:
             self._mostrar("Origem e destino precisam ser diferentes.")
@@ -511,6 +562,16 @@ class App(ctk.CTk):
     def limpar(self):
         self.caminho = []
 
+        self.selecao = {
+            "origem": None,
+            "destino": None,
+        }
+
+        self.proxima_selecao = "origem"
+
+        self.origem.set("Selecione a origem")
+        self.destino.set("Selecione o destino")
+
         self._mostrar("Selecione origem, destino e criterio.")
 
         self.desenhar()
@@ -544,10 +605,10 @@ class App(ctk.CTk):
         cores = []
 
         for no in GRAFO.nodes:
-            if self.caminho and no == self.caminho[0]:
+            if no == self.selecao["origem"]:
                 cores.append(COR_ORIGEM)
 
-            elif self.caminho and no == self.caminho[-1]:
+            elif no == self.selecao["destino"]:
                 cores.append(COR_DESTINO)
 
             else:
