@@ -215,14 +215,8 @@ class App(ctk.CTk):
             method="dijkstra",
         )
 
-        distancia = sum(
-            GRAFO[a][b]["distancia"]
-            for a, b in zip(caminho, caminho[1:])
-        )
-        tempo = sum(
-            GRAFO[a][b]["tempo"]
-            for a, b in zip(caminho, caminho[1:])
-        )
+        distancia = sum(GRAFO[a][b]["distancia"] for a, b in zip(caminho, caminho[1:]))
+        tempo = sum(GRAFO[a][b]["tempo"] for a, b in zip(caminho, caminho[1:]))
 
         self.caminho = caminho
         rota = " -> ".join(CIDADES[cidade] for cidade in caminho)
@@ -297,13 +291,13 @@ class App(ctk.CTk):
             POS,
             ax=self.ax,
             edge_labels=labels,
-            font_size=6,
+            font_size=8,
             rotate=False,
             bbox={
                 "facecolor": "white",
                 "edgecolor": "none",
-                "alpha": 0.75,
-                "pad": 0.5,
+                "alpha": 0.9,
+                "pad": 0.7,
             },
         )
 
