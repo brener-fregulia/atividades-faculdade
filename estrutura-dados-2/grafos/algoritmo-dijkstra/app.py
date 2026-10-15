@@ -105,8 +105,8 @@ class App(ctk.CTk):
         super().__init__()
 
         self.title("Dijkstra - Alto Vale do Itajai")
-        self.geometry("1250x780")
         self.minsize(1050, 680)
+        self.after(0, self._maximizar)
 
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
@@ -116,6 +116,12 @@ class App(ctk.CTk):
         self._montar_controles()
         self._montar_grafo()
         self.desenhar()
+
+    def _maximizar(self):
+        if self.tk.call("tk", "windowingsystem") == "win32":
+            self.state("zoomed")
+        else:
+            self.attributes("-zoomed", True)
 
     def _montar_controles(self):
         painel = ctk.CTkFrame(self, width=380, corner_radius=0)
