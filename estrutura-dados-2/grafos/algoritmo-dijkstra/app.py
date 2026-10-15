@@ -118,7 +118,7 @@ class App(ctk.CTk):
         self.desenhar()
 
     def _montar_controles(self):
-        painel = ctk.CTkFrame(self, width=310, corner_radius=0)
+        painel = ctk.CTkFrame(self, width=380, corner_radius=0)
         painel.grid(row=0, column=0, sticky="nsew")
         painel.grid_propagate(False)
 
@@ -129,25 +129,26 @@ class App(ctk.CTk):
             justify="left",
         ).pack(anchor="w", padx=22, pady=(26, 24))
 
-        opcoes = [f"{sigla} - {nome}" for sigla, nome in CIDADES.items()]
+        cidades_ordenadas = sorted(CIDADES.items(), key=lambda item: item[1])
+        opcoes = [f"{sigla} - {nome}" for sigla, nome in cidades_ordenadas]
 
         ctk.CTkLabel(painel, text="Origem").pack(anchor="w", padx=22)
         self.origem = ctk.CTkComboBox(
-            painel, values=opcoes, width=265, state="readonly"
+            painel, values=opcoes, width=335, state="readonly"
         )
         self.origem.pack(padx=22, pady=(6, 16))
         self.origem.set("ITU - Ituporanga")
 
         ctk.CTkLabel(painel, text="Destino").pack(anchor="w", padx=22)
         self.destino = ctk.CTkComboBox(
-            painel, values=opcoes, width=265, state="readonly"
+            painel, values=opcoes, width=335, state="readonly"
         )
         self.destino.pack(padx=22, pady=(6, 16))
         self.destino.set("RDO - Rio do Oeste")
 
         ctk.CTkLabel(painel, text="Criterio").pack(anchor="w", padx=22)
         self.criterio = ctk.CTkSegmentedButton(
-            painel, values=["Distancia", "Tempo"], width=265
+            painel, values=["Distancia", "Tempo"], width=335
         )
         self.criterio.pack(padx=22, pady=(6, 18))
         self.criterio.set("Distancia")
@@ -155,7 +156,7 @@ class App(ctk.CTk):
         ctk.CTkButton(
             painel,
             text="Calcular melhor caminho",
-            width=265,
+            width=335,
             height=40,
             command=self.calcular,
         ).pack(padx=22, pady=(0, 10))
@@ -163,19 +164,76 @@ class App(ctk.CTk):
         ctk.CTkButton(
             painel,
             text="Limpar",
-            width=265,
+            width=335,
             command=self.limpar,
         ).pack(padx=22, pady=(0, 20))
 
         self.resultado = ctk.CTkTextbox(
             painel,
-            width=265,
-            height=245,
+            width=335,
+            height=160,
             wrap="word",
             font=("Consolas", 12),
         )
         self.resultado.pack(padx=22, fill="x")
         self._mostrar("Selecione origem, destino e criterio.")
+
+        # legenda das cidades
+        legenda = ctk.CTkFrame(
+            painel,
+            fg_color=("#E7E7E7", "#3A3A3A"),
+            corner_radius=8,
+        )
+        legenda.pack(
+            padx=22,
+            pady=(16, 0),
+            fill="x",
+        )
+
+        legenda.grid_columnconfigure(0, weight=1)
+        legenda.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(
+            legenda,
+            text="Cidades",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            pady=(10, 8),
+        )
+
+        for i, (sigla, nome) in enumerate(cidades_ordenadas):
+            coluna = i // 9
+            linha = i % 9 + 1
+
+            item = ctk.CTkFrame(
+                legenda,
+                fg_color="transparent",
+            )
+            item.grid(
+                row=linha,
+                column=coluna,
+                sticky="w",
+                padx=10,
+                pady=2,
+            )
+
+            ctk.CTkLabel(
+                item,
+                text=sigla,
+                width=30,
+                anchor="w",
+                font=ctk.CTkFont(size=10, weight="bold"),
+            ).pack(side="left")
+
+            ctk.CTkLabel(
+                item,
+                text=nome,
+                anchor="w",
+                font=ctk.CTkFont(size=10),
+            ).pack(side="left")
 
     def _montar_grafo(self):
         frame = ctk.CTkFrame(self, corner_radius=0)
