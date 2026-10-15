@@ -333,7 +333,9 @@ class App(ctk.CTk):
             POS,
             ax=self.ax,
             node_color=cores,
-            node_size=150,
+            node_size=540,
+            edgecolors="#FFFFFF",
+            linewidths=1.5,
         )
 
         nx.draw_networkx_labels(
@@ -343,6 +345,7 @@ class App(ctk.CTk):
             labels={sigla: sigla for sigla in CIDADES},
             font_size=8,
             font_color="white",
+            font_weight="bold",
         )
 
         # distancia e tempo ficam sempre visiveis
