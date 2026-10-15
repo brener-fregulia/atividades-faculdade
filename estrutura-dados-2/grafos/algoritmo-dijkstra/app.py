@@ -5,6 +5,17 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 COR_ORIGEM = "#2A9D55"
 COR_DESTINO = "#2878D0"
+COR_ROTA = "#D62828"
+
+COR_NO = "#111111"
+COR_ARESTA = "#9A9A9A"
+COR_BRANCO = "#FFFFFF"
+
+COR_BORDA_ORIGEM = "#75D69A"
+COR_BORDA_DESTINO = "#6FA8E8"
+
+COR_LEGENDA = ("#E7E7E7", "#3A3A3A")
+COR_TEXTO = ("gray10", "gray90")
 
 # dados do grafo
 CIDADES = {
@@ -91,6 +102,7 @@ POS = {
 }
 
 GRAFO = nx.Graph()
+
 for sigla, nome in CIDADES.items():
     GRAFO.add_node(sigla, nome=nome)
 
@@ -116,6 +128,7 @@ class App(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self.caminho = []
+
         self._montar_controles()
         self._montar_grafo()
         self.desenhar()
@@ -127,21 +140,47 @@ class App(ctk.CTk):
             self.attributes("-zoomed", True)
 
     def _montar_controles(self):
-        painel = ctk.CTkFrame(self, width=380, corner_radius=0)
-        painel.grid(row=0, column=0, sticky="nsew")
+        painel = ctk.CTkFrame(
+            self,
+            width=380,
+            corner_radius=0,
+        )
+        painel.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
         painel.grid_propagate(False)
 
         ctk.CTkLabel(
             painel,
             text="Dijkstra\nAlto Vale do Itajai",
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(
+                size=24,
+                weight="bold",
+            ),
             justify="left",
-        ).pack(anchor="w", padx=22, pady=(26, 24))
+        ).pack(
+            anchor="w",
+            padx=22,
+            pady=(26, 24),
+        )
 
-        cidades_ordenadas = sorted(CIDADES.items(), key=lambda item: item[1])
+        cidades_ordenadas = sorted(
+            CIDADES.items(),
+            key=lambda item: item[1],
+        )
+
         opcoes = [f"{sigla} - {nome}" for sigla, nome in cidades_ordenadas]
 
-        ctk.CTkLabel(painel, text="Origem").pack(anchor="w", padx=22)
+        ctk.CTkLabel(
+            painel,
+            text="Origem",
+        ).pack(
+            anchor="w",
+            padx=22,
+        )
+
         self.origem = ctk.CTkComboBox(
             painel,
             values=opcoes,
@@ -150,12 +189,22 @@ class App(ctk.CTk):
             fg_color=COR_ORIGEM,
             border_color=COR_ORIGEM,
             button_color=COR_ORIGEM,
-            text_color="white",
+            text_color=COR_BRANCO,
         )
-        self.origem.pack(padx=22, pady=(6, 16))
+        self.origem.pack(
+            padx=22,
+            pady=(6, 16),
+        )
         self.origem.set("ITU - Ituporanga")
 
-        ctk.CTkLabel(painel, text="Destino").pack(anchor="w", padx=22)
+        ctk.CTkLabel(
+            painel,
+            text="Destino",
+        ).pack(
+            anchor="w",
+            padx=22,
+        )
+
         self.destino = ctk.CTkComboBox(
             painel,
             values=opcoes,
@@ -164,16 +213,31 @@ class App(ctk.CTk):
             fg_color=COR_DESTINO,
             border_color=COR_DESTINO,
             button_color=COR_DESTINO,
-            text_color="white",
+            text_color=COR_BRANCO,
         )
-        self.destino.pack(padx=22, pady=(6, 16))
+        self.destino.pack(
+            padx=22,
+            pady=(6, 16),
+        )
         self.destino.set("RDO - Rio do Oeste")
 
-        ctk.CTkLabel(painel, text="Criterio").pack(anchor="w", padx=22)
-        self.criterio = ctk.CTkSegmentedButton(
-            painel, values=["Distancia", "Tempo"], width=335
+        ctk.CTkLabel(
+            painel,
+            text="Criterio",
+        ).pack(
+            anchor="w",
+            padx=22,
         )
-        self.criterio.pack(padx=22, pady=(6, 18))
+
+        self.criterio = ctk.CTkSegmentedButton(
+            painel,
+            values=["Distancia", "Tempo"],
+            width=335,
+        )
+        self.criterio.pack(
+            padx=22,
+            pady=(6, 18),
+        )
         self.criterio.set("Distancia")
 
         ctk.CTkButton(
@@ -182,14 +246,20 @@ class App(ctk.CTk):
             width=335,
             height=40,
             command=self.calcular,
-        ).pack(padx=22, pady=(0, 10))
+        ).pack(
+            padx=22,
+            pady=(0, 10),
+        )
 
         ctk.CTkButton(
             painel,
             text="Limpar",
             width=335,
             command=self.limpar,
-        ).pack(padx=22, pady=(0, 20))
+        ).pack(
+            padx=22,
+            pady=(0, 20),
+        )
 
         self.resultado = ctk.CTkTextbox(
             painel,
@@ -198,13 +268,17 @@ class App(ctk.CTk):
             wrap="word",
             font=("Consolas", 12),
         )
-        self.resultado.pack(padx=22, fill="x")
+        self.resultado.pack(
+            padx=22,
+            fill="x",
+        )
+
         self._mostrar("Selecione origem, destino e criterio.")
 
         # legenda das cidades
         legenda = ctk.CTkFrame(
             painel,
-            fg_color=("#E7E7E7", "#3A3A3A"),
+            fg_color=COR_LEGENDA,
             corner_radius=8,
         )
         legenda.pack(
@@ -213,13 +287,24 @@ class App(ctk.CTk):
             fill="x",
         )
 
-        legenda.grid_columnconfigure(0, weight=1)
-        legenda.grid_columnconfigure(1, weight=1)
+        legenda.grid_columnconfigure(
+            0,
+            weight=1,
+            uniform="coluna",
+        )
+        legenda.grid_columnconfigure(
+            1,
+            weight=1,
+            uniform="coluna",
+        )
 
         ctk.CTkLabel(
             legenda,
             text="Cidades",
-            font=ctk.CTkFont(size=13, weight="bold"),
+            font=ctk.CTkFont(
+                size=13,
+                weight="bold",
+            ),
         ).grid(
             row=0,
             column=0,
@@ -236,13 +321,14 @@ class App(ctk.CTk):
             item = ctk.CTkFrame(
                 legenda,
                 fg_color="transparent",
-                corner_radius=5,
+                corner_radius=12,
+                border_width=0,
             )
             item.grid(
                 row=linha,
                 column=coluna,
-                sticky="w",
-                padx=10,
+                sticky="ew",
+                padx=8,
                 pady=2,
             )
 
@@ -253,37 +339,129 @@ class App(ctk.CTk):
                 text=sigla,
                 width=30,
                 anchor="w",
-                font=ctk.CTkFont(size=10, weight="bold"),
-            ).pack(side="left")
+                font=ctk.CTkFont(
+                    size=10,
+                    weight="bold",
+                ),
+            ).pack(
+                side="left",
+                padx=(8, 0),
+                pady=4,
+            )
 
             ctk.CTkLabel(
                 item,
                 text=nome,
                 anchor="w",
                 font=ctk.CTkFont(size=10),
-            ).pack(side="left")
+            ).pack(
+                side="left",
+                padx=(0, 8),
+                pady=4,
+            )
 
     def _montar_grafo(self):
-        frame = ctk.CTkFrame(self, corner_radius=0)
-        frame.grid(row=0, column=1, sticky="nsew")
-        frame.grid_rowconfigure(0, weight=1)
-        frame.grid_columnconfigure(0, weight=1)
+        frame = ctk.CTkFrame(
+            self,
+            corner_radius=0,
+        )
+        frame.grid(
+            row=0,
+            column=1,
+            sticky="nsew",
+        )
 
-        self.fig, self.ax = plt.subplots(figsize=(10, 7), dpi=100)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=frame)
-        self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+        frame.grid_rowconfigure(
+            0,
+            weight=1,
+        )
+        frame.grid_columnconfigure(
+            0,
+            weight=1,
+        )
+
+        self.fig, self.ax = plt.subplots(
+            figsize=(10, 7),
+            dpi=100,
+        )
+
+        self.canvas = FigureCanvasTkAgg(
+            self.fig,
+            master=frame,
+        )
+
+        self.canvas.get_tk_widget().grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
 
     def _sigla(self, valor):
         return valor.split(" - ", 1)[0]
 
     def _mostrar(self, texto):
-        self.resultado.configure(state="normal")
-        self.resultado.delete("1.0", "end")
-        self.resultado.insert("1.0", texto)
-        self.resultado.configure(state="disabled")
+        self.resultado.configure(
+            state="normal",
+        )
+
+        self.resultado.delete(
+            "1.0",
+            "end",
+        )
+
+        self.resultado.insert(
+            "1.0",
+            texto,
+        )
+
+        self.resultado.configure(
+            state="disabled",
+        )
+
+    def _atualizar_legenda(self):
+        for item in self.itens_legenda.values():
+            item.configure(
+                fg_color="transparent",
+                border_width=0,
+            )
+
+            for label in item.winfo_children():
+                label.configure(
+                    text_color=COR_TEXTO,
+                )
+
+        if not self.caminho:
+            return
+
+        origem = self.itens_legenda[self.caminho[0]]
+
+        destino = self.itens_legenda[self.caminho[-1]]
+
+        origem.configure(
+            fg_color=COR_ORIGEM,
+            border_width=1,
+            border_color=COR_BORDA_ORIGEM,
+        )
+
+        destino.configure(
+            fg_color=COR_DESTINO,
+            border_width=1,
+            border_color=COR_BORDA_DESTINO,
+        )
+
+        for label in origem.winfo_children():
+            label.configure(
+                text_color=COR_BRANCO,
+            )
+
+        for label in destino.winfo_children():
+            label.configure(
+                text_color=COR_BRANCO,
+            )
 
     def calcular(self):
         origem = self._sigla(self.origem.get())
+
         destino = self._sigla(self.destino.get())
 
         if origem == destino:
@@ -301,10 +479,24 @@ class App(ctk.CTk):
             method="dijkstra",
         )
 
-        distancia = sum(GRAFO[a][b]["distancia"] for a, b in zip(caminho, caminho[1:]))
-        tempo = sum(GRAFO[a][b]["tempo"] for a, b in zip(caminho, caminho[1:]))
+        distancia = sum(
+            GRAFO[a][b]["distancia"]
+            for a, b in zip(
+                caminho,
+                caminho[1:],
+            )
+        )
+
+        tempo = sum(
+            GRAFO[a][b]["tempo"]
+            for a, b in zip(
+                caminho,
+                caminho[1:],
+            )
+        )
 
         self.caminho = caminho
+
         rota = " -> ".join(CIDADES[cidade] for cidade in caminho)
 
         self._mostrar(
@@ -313,11 +505,14 @@ class App(ctk.CTk):
             f"Distancia: {distancia:.1f} km\n"
             f"Tempo: {tempo} min"
         )
+
         self.desenhar()
 
     def limpar(self):
         self.caminho = []
+
         self._mostrar("Selecione origem, destino e criterio.")
+
         self.desenhar()
 
     def desenhar(self):
@@ -327,7 +522,7 @@ class App(ctk.CTk):
             GRAFO,
             POS,
             ax=self.ax,
-            edge_color="#9A9A9A",
+            edge_color=COR_ARESTA,
             width=1.7,
         )
 
@@ -336,19 +531,27 @@ class App(ctk.CTk):
                 GRAFO,
                 POS,
                 ax=self.ax,
-                edgelist=list(zip(self.caminho, self.caminho[1:])),
-                edge_color="#D62828",
+                edgelist=list(
+                    zip(
+                        self.caminho,
+                        self.caminho[1:],
+                    )
+                ),
+                edge_color=COR_ROTA,
                 width=4,
             )
 
         cores = []
+
         for no in GRAFO.nodes:
             if self.caminho and no == self.caminho[0]:
                 cores.append(COR_ORIGEM)
+
             elif self.caminho and no == self.caminho[-1]:
                 cores.append(COR_DESTINO)
+
             else:
-                cores.append("#111111")
+                cores.append(COR_NO)
 
         nx.draw_networkx_nodes(
             GRAFO,
@@ -356,7 +559,7 @@ class App(ctk.CTk):
             ax=self.ax,
             node_color=cores,
             node_size=540,
-            edgecolors="#FFFFFF",
+            edgecolors=COR_BRANCO,
             linewidths=1.5,
         )
 
@@ -366,34 +569,18 @@ class App(ctk.CTk):
             ax=self.ax,
             labels={sigla: sigla for sigla in CIDADES},
             font_size=8,
-            font_color="white",
+            font_color=COR_BRANCO,
             font_weight="bold",
         )
 
-        for item in self.itens_legenda.values():
-            item.configure(fg_color="transparent")
-
-            for label in item.winfo_children():
-                label.configure(text_color=("gray10", "gray90"))
-
-        if self.caminho:
-            origem = self.itens_legenda[self.caminho[0]]
-            destino = self.itens_legenda[self.caminho[-1]]
-
-            origem.configure(fg_color=COR_ORIGEM)
-            destino.configure(fg_color=COR_DESTINO)
-
-            for label in origem.winfo_children():
-                label.configure(text_color="white")
-
-            for label in destino.winfo_children():
-                label.configure(text_color="white")
+        self._atualizar_legenda()
 
         # distancia e tempo ficam sempre visiveis
         labels = {
-            (a, b): f"{d['distancia']:.1f} km\n{d['tempo']} min"
+            (a, b): (f"{d['distancia']:.1f} km\n" f"{d['tempo']} min")
             for a, b, d in GRAFO.edges(data=True)
         }
+
         nx.draw_networkx_edge_labels(
             GRAFO,
             POS,
@@ -402,14 +589,18 @@ class App(ctk.CTk):
             font_size=8,
             rotate=False,
             bbox={
-                "facecolor": "white",
+                "facecolor": COR_BRANCO,
                 "edgecolor": "none",
                 "alpha": 0.9,
                 "pad": 0.7,
             },
         )
 
-        self.ax.set_title("Grafo do Alto Vale do Itajai", fontsize=15)
+        self.ax.set_title(
+            "Grafo do Alto Vale do Itajai",
+            fontsize=15,
+        )
+
         self.ax.axis("off")
         self.fig.tight_layout()
         self.canvas.draw_idle()
@@ -417,5 +608,6 @@ class App(ctk.CTk):
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("system")
+
     app = App()
     app.mainloop()
