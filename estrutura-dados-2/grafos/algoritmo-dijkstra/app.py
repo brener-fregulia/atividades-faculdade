@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+COR_ORIGEM = "#2A9D55"
+COR_DESTINO = "#2878D0"
+
 # dados do grafo
 CIDADES = {
     "ITU": "Ituporanga",
@@ -140,14 +143,28 @@ class App(ctk.CTk):
 
         ctk.CTkLabel(painel, text="Origem").pack(anchor="w", padx=22)
         self.origem = ctk.CTkComboBox(
-            painel, values=opcoes, width=335, state="readonly"
+            painel,
+            values=opcoes,
+            width=335,
+            state="readonly",
+            fg_color=COR_ORIGEM,
+            border_color=COR_ORIGEM,
+            button_color=COR_ORIGEM,
+            text_color="white",
         )
         self.origem.pack(padx=22, pady=(6, 16))
         self.origem.set("ITU - Ituporanga")
 
         ctk.CTkLabel(painel, text="Destino").pack(anchor="w", padx=22)
         self.destino = ctk.CTkComboBox(
-            painel, values=opcoes, width=335, state="readonly"
+            painel,
+            values=opcoes,
+            width=335,
+            state="readonly",
+            fg_color=COR_DESTINO,
+            border_color=COR_DESTINO,
+            button_color=COR_DESTINO,
+            text_color="white",
         )
         self.destino.pack(padx=22, pady=(6, 16))
         self.destino.set("RDO - Rio do Oeste")
@@ -210,6 +227,8 @@ class App(ctk.CTk):
             pady=(10, 8),
         )
 
+        self.itens_legenda = {}
+
         for i, (sigla, nome) in enumerate(cidades_ordenadas):
             coluna = i // 9
             linha = i % 9 + 1
@@ -217,6 +236,7 @@ class App(ctk.CTk):
             item = ctk.CTkFrame(
                 legenda,
                 fg_color="transparent",
+                corner_radius=5,
             )
             item.grid(
                 row=linha,
@@ -225,6 +245,8 @@ class App(ctk.CTk):
                 padx=10,
                 pady=2,
             )
+
+            self.itens_legenda[sigla] = item
 
             ctk.CTkLabel(
                 item,
@@ -322,9 +344,9 @@ class App(ctk.CTk):
         cores = []
         for no in GRAFO.nodes:
             if self.caminho and no == self.caminho[0]:
-                cores.append("#2A9D55")
+                cores.append(COR_ORIGEM)
             elif self.caminho and no == self.caminho[-1]:
-                cores.append("#2878D0")
+                cores.append(COR_DESTINO)
             else:
                 cores.append("#111111")
 
@@ -347,6 +369,25 @@ class App(ctk.CTk):
             font_color="white",
             font_weight="bold",
         )
+
+        for item in self.itens_legenda.values():
+            item.configure(fg_color="transparent")
+
+            for label in item.winfo_children():
+                label.configure(text_color=("gray10", "gray90"))
+
+        if self.caminho:
+            origem = self.itens_legenda[self.caminho[0]]
+            destino = self.itens_legenda[self.caminho[-1]]
+
+            origem.configure(fg_color=COR_ORIGEM)
+            destino.configure(fg_color=COR_DESTINO)
+
+            for label in origem.winfo_children():
+                label.configure(text_color="white")
+
+            for label in destino.winfo_children():
+                label.configure(text_color="white")
 
         # distancia e tempo ficam sempre visiveis
         labels = {
