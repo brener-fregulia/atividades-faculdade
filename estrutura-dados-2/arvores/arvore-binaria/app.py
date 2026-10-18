@@ -231,52 +231,69 @@ class App(ctk.CTk):
 
         self.desenhar()
 
+    def _calcular_posicoes(self):
+        posicoes = {}
+        coluna = 0
+
+        def percorrer(no, nivel):
+            nonlocal coluna
+
+            if no is None:
+                return
+
+            percorrer(
+                no.esquerda,
+                nivel + 1,
+            )
+
+            posicoes[no] = (
+                coluna,
+                -nivel,
+            )
+            coluna += 1
+
+            percorrer(
+                no.direita,
+                nivel + 1,
+            )
+
+        percorrer(
+            self.arvore.raiz,
+            0,
+        )
+
+        return posicoes
+
     def _desenhar_no(
         self,
         no,
-        x,
-        y,
-        deslocamento,
+        posicoes,
     ):
         if no is None:
             return
 
-        proximo_y = y - 1
+        x, y = posicoes[no]
 
-        if no.esquerda is not None:
-            filho_x = x - deslocamento
+        for filho in (
+            no.esquerda,
+            no.direita,
+        ):
+            if filho is None:
+                continue
+
+            filho_x, filho_y = posicoes[filho]
 
             self.ax.plot(
                 [x, filho_x],
-                [y, proximo_y],
+                [y, filho_y],
                 color=COR_ARESTA,
                 linewidth=2,
                 zorder=1,
             )
 
             self._desenhar_no(
-                no.esquerda,
-                filho_x,
-                proximo_y,
-                deslocamento / 2,
-            )
-
-        if no.direita is not None:
-            filho_x = x + deslocamento
-
-            self.ax.plot(
-                [x, filho_x],
-                [y, proximo_y],
-                color=COR_ARESTA,
-                linewidth=2,
-                zorder=1,
-            )
-
-            self._desenhar_no(
-                no.direita,
-                filho_x,
-                proximo_y,
-                deslocamento / 2,
+                filho,
+                posicoes,
             )
 
         self.ax.scatter(
@@ -320,19 +337,25 @@ class App(ctk.CTk):
                 fontsize=14,
             )
         else:
+            posicoes = self._calcular_posicoes()
+
             self._desenhar_no(
                 self.arvore.raiz,
-                x=0,
-                y=0,
-                deslocamento=4,
+                posicoes,
             )
 
-            self.ax.relim()
-            self.ax.autoscale_view()
+            valores_x = [x for x, y in posicoes.values()]
 
-            self.ax.margins(
-                x=0.15,
-                y=0.15,
+            valores_y = [y for x, y in posicoes.values()]
+
+            self.ax.set_xlim(
+                min(valores_x) - 1,
+                max(valores_x) + 1,
+            )
+
+            self.ax.set_ylim(
+                min(valores_y) - 1,
+                1,
             )
 
         self.ax.axis("off")
