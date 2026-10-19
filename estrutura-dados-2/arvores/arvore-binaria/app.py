@@ -63,6 +63,59 @@ class ArvoreBinariaBusca:
 
         return None
 
+    def excluir(self, valor):
+        if self.buscar(valor) is None:
+            return False
+
+        self.raiz = self._excluir(
+            self.raiz,
+            valor,
+        )
+
+        return True
+
+    def _excluir(self, no, valor):
+        if no is None:
+            return None
+
+        if valor < no.valor:
+            no.esquerda = self._excluir(
+                no.esquerda,
+                valor,
+            )
+
+        elif valor > no.valor:
+            no.direita = self._excluir(
+                no.direita,
+                valor,
+            )
+
+        else:
+            if no.esquerda is None:
+                return no.direita
+
+            if no.direita is None:
+                return no.esquerda
+
+            sucessor = self._menor(no.direita)
+
+            no.valor = sucessor.valor
+
+            no.direita = self._excluir(
+                no.direita,
+                sucessor.valor,
+            )
+
+        return no
+
+    def _menor(self, no):
+        atual = no
+
+        while atual.esquerda is not None:
+            atual = atual.esquerda
+
+        return atual
+
     def limpar(self):
         self.raiz = None
 
@@ -159,6 +212,17 @@ class App(ctk.CTk):
             width=305,
             height=40,
             command=self.buscar,
+        ).pack(
+            padx=22,
+            pady=(0, 10),
+        )
+
+        ctk.CTkButton(
+            painel,
+            text="Excluir",
+            width=305,
+            height=40,
+            command=self.excluir,
         ).pack(
             padx=22,
             pady=(0, 10),
@@ -272,6 +336,26 @@ class App(ctk.CTk):
         else:
             self.no_destacado = encontrado
             self._mostrar(f"O valor {valor} pertence a arvore.")
+
+        self.desenhar()
+
+    def excluir(self):
+        texto = self.entrada.get().strip()
+
+        try:
+            valor = int(texto)
+        except ValueError:
+            self._mostrar("Digite um numero inteiro valido.")
+            return
+
+        if not self.arvore.excluir(valor):
+            self._mostrar(f"O valor {valor} nao existe na arvore.")
+            return
+
+        self.entrada.delete(0, "end")
+        self.no_destacado = None
+
+        self._mostrar(f"Valor {valor} excluido.")
 
         self.desenhar()
 
