@@ -7,6 +7,9 @@ COR_BORDA = "#6FA8E8"
 COR_ARESTA = "#777777"
 COR_BRANCO = "#FFFFFF"
 
+COR_BUSCA = "#2A9D55"
+COR_BORDA_BUSCA = "#75D69A"
+
 
 class No:
     def __init__(self, valor):
@@ -46,6 +49,20 @@ class ArvoreBinariaBusca:
 
                 atual = atual.direita
 
+    def buscar(self, valor):
+        atual = self.raiz
+
+        while atual is not None:
+            if valor == atual.valor:
+                return atual
+
+            if valor < atual.valor:
+                atual = atual.esquerda
+            else:
+                atual = atual.direita
+
+        return None
+
     def limpar(self):
         self.raiz = None
 
@@ -63,6 +80,7 @@ class App(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self.arvore = ArvoreBinariaBusca()
+        self.no_destacado = None
 
         self._montar_controles()
         self._montar_grafico()
@@ -130,6 +148,17 @@ class App(ctk.CTk):
             width=305,
             height=40,
             command=self.inserir,
+        ).pack(
+            padx=22,
+            pady=(0, 10),
+        )
+
+        ctk.CTkButton(
+            painel,
+            text="Buscar",
+            width=305,
+            height=40,
+            command=self.buscar,
         ).pack(
             padx=22,
             pady=(0, 10),
@@ -220,12 +249,35 @@ class App(ctk.CTk):
 
         self.entrada.delete(0, "end")
 
+        self.no_destacado = None
+
         self._mostrar(f"Valor {valor} inserido.")
+
+        self.desenhar()
+
+    def buscar(self):
+        texto = self.entrada.get().strip()
+
+        try:
+            valor = int(texto)
+        except ValueError:
+            self._mostrar("Digite um numero inteiro valido.")
+            return
+
+        encontrado = self.arvore.buscar(valor)
+
+        if encontrado is None:
+            self.no_destacado = None
+            self._mostrar(f"O valor {valor} nao pertence a arvore.")
+        else:
+            self.no_destacado = encontrado
+            self._mostrar(f"O valor {valor} pertence a arvore.")
 
         self.desenhar()
 
     def limpar(self):
         self.arvore.limpar()
+        self.no_destacado = None
 
         self._mostrar("Arvore limpa.")
 
@@ -296,12 +348,14 @@ class App(ctk.CTk):
                 posicoes,
             )
 
+        destacado = no is self.no_destacado
+
         self.ax.scatter(
             x,
             y,
             s=1800,
-            color=COR_NO,
-            edgecolors=COR_BORDA,
+            color=COR_BUSCA if destacado else COR_NO,
+            edgecolors=COR_BORDA_BUSCA if destacado else COR_BORDA,
             linewidths=2,
             zorder=2,
         )
