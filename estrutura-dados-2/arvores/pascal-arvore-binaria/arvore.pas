@@ -54,6 +54,46 @@ begin
   Raiz := nil;
 end;
 
+function InsereArvBin(var Raiz: PtrNodoArvBin; X: Integer): Boolean;
+var
+  Atual, Pai, Novo: PtrNodoArvBin;
+begin
+  Atual := Raiz;
+  Pai := nil;
+
+  while Atual <> nil do
+  begin
+    Pai := Atual;
+
+    if X = Atual^.Conteudo then
+    begin
+      InsereArvBin := False;
+      Exit;
+    end;
+
+    if X < Atual^.Conteudo then
+      Atual := Atual^.ArvEsq
+    else
+      Atual := Atual^.ArvDir;
+  end;
+
+  New(Novo);
+
+  Novo^.Conteudo := X;
+  Novo^.ArvEsq := nil;
+  Novo^.ArvDir := nil;
+  Novo^.Pai := Pai;
+
+  if Pai = nil then
+    Raiz := Novo
+  else if X < Pai^.Conteudo then
+    Pai^.ArvEsq := Novo
+  else
+    Pai^.ArvDir := Novo;
+
+  InsereArvBin := True;
+end;
+
 procedure MostraNodosFolha(Raiz: PtrNodoArvBin);
 begin
   if Raiz <> nil then
@@ -203,7 +243,7 @@ end;
 
 var
   Raiz: PtrNodoArvBin;
-  Opcao: Integer;
+  Opcao, Valor: Integer;
 
 begin
   InicializaArvBin(Raiz);
@@ -214,7 +254,23 @@ begin
     ReadLn(Opcao);
 
     case Opcao of
-      1..10:
+      1:
+        begin
+          Writeln;
+          Write('Digite o valor a inserir: ');
+          ReadLn(Valor);
+
+          if InsereArvBin(Raiz, Valor) then
+            Writeln('Valor ', Valor, ' inserido com sucesso.')
+          else
+            Writeln('O valor ', Valor, ' ja existe na arvore.');
+
+          Writeln;
+          Write('Pressione Enter para continuar...');
+          ReadLn;
+        end;
+
+      2..10:
         begin
           Writeln;
           Writeln('Funcionalidade ainda nao implementada.');
