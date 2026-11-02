@@ -172,6 +172,36 @@ begin
     MaiorValor := Raiz;
 end;
 
+function NivelElemento(
+  Raiz: PtrNodoArvBin;
+  X: Integer
+): Integer;
+var
+  Atual: PtrNodoArvBin;
+  Nivel: Integer;
+begin
+  Atual := Raiz;
+  Nivel := 0;
+
+  while Atual <> nil do
+  begin
+    if X = Atual^.Conteudo then
+    begin
+      NivelElemento := Nivel;
+      Exit;
+    end;
+
+    if X < Atual^.Conteudo then
+      Atual := Atual^.ArvEsq
+    else
+      Atual := Atual^.ArvDir;
+
+    Inc(Nivel);
+  end;
+
+  NivelElemento := -1;
+end;
+
 function Altura(Raiz: PtrNodoArvBin): Integer;
 begin
   if Raiz = nil then
@@ -339,6 +369,30 @@ begin
   Pausar;
 end;
 
+procedure ExecutaNivel(Raiz: PtrNodoArvBin);
+var
+  Valor, Nivel: Integer;
+begin
+  Writeln;
+  Write('Digite o valor: ');
+  ReadLn(Valor);
+
+  Nivel := NivelElemento(Raiz, Valor);
+
+  if Nivel = -1 then
+    Writeln('O valor ', Valor, ' nao pertence a arvore.')
+  else
+    Writeln(
+      'O valor ',
+      Valor,
+      ' esta no nivel ',
+      Nivel,
+      '.'
+    );
+
+  Pausar;
+end;
+
 procedure NaoImplementado;
 begin
   Writeln;
@@ -403,7 +457,10 @@ begin
       8:
         ExecutaAltura(Raiz);
 
-      9..10:
+      9:
+        ExecutaNivel(Raiz);
+
+      10:
         NaoImplementado;
 
       0:
