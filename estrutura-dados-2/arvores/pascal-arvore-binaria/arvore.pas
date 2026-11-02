@@ -311,6 +311,22 @@ begin
   Pausar;
 end;
 
+procedure ExecutaFolhas(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+  Writeln('Nodos folha da arvore:');
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else
+  begin
+    MostraNodosFolha(Raiz);
+    Writeln;
+  end;
+
+  Pausar;
+end;
+
 procedure NaoImplementado;
 begin
   Writeln;
@@ -369,7 +385,10 @@ begin
       6:
         ExecutaPosOrdem(Raiz);
 
-      7..10:
+      7:
+        ExecutaFolhas(Raiz);
+
+      8..10:
         NaoImplementado;
 
       0:
