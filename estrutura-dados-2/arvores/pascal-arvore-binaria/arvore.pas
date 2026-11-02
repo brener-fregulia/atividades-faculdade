@@ -292,6 +292,25 @@ begin
   Pausar;
 end;
 
+procedure ExecutaPesquisa(Raiz: PtrNodoArvBin);
+var
+  Valor: Integer;
+  Encontrado: PtrNodoArvBin;
+begin
+  Writeln;
+  Write('Digite o valor a pesquisar: ');
+  ReadLn(Valor);
+
+  Encontrado := PesquisaArvBinPesq(Raiz, Valor);
+
+  if Encontrado <> nil then
+    Writeln('O valor ', Valor, ' pertence a arvore.')
+  else
+    Writeln('O valor ', Valor, ' nao pertence a arvore.');
+
+  Pausar;
+end;
+
 procedure NaoImplementado;
 begin
   Writeln;
@@ -335,8 +354,11 @@ begin
       1:
         ExecutaInsercao(Raiz);
 
-      2..3:
+      2:
         NaoImplementado;
+
+      3:
+        ExecutaPesquisa(Raiz);
 
       4:
         ExecutaPreOrdem(Raiz);
