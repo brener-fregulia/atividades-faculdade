@@ -181,11 +181,67 @@ begin
     MaiorCaminho := 'D' + MaiorCaminho(Raiz^.ArvDir);
 end;
 
+procedure ExibeMenu;
+begin
+  Writeln('===================================');
+  Writeln('       ARVORE BINARIA DE BUSCA');
+  Writeln('===================================');
+  Writeln('1  - Inserir no');
+  Writeln('2  - Excluir no');
+  Writeln('3  - Verificar se elemento pertence');
+  Writeln('4  - Percorrer em pre-ordem');
+  Writeln('5  - Percorrer em ordem');
+  Writeln('6  - Percorrer em pos-ordem');
+  Writeln('7  - Mostrar folhas');
+  Writeln('8  - Verificar altura');
+  Writeln('9  - Verificar nivel de elemento');
+  Writeln('10 - Verificar se arvore e completa');
+  Writeln('0  - Sair');
+  Writeln('===================================');
+  Write('Opcao: ');
+end;
+
 var
   Raiz: PtrNodoArvBin;
+  Opcao: Integer;
 
 begin
   InicializaArvBin(Raiz);
+
+  repeat
+    ClrScr;
+    ExibeMenu;
+    ReadLn(Opcao);
+
+    case Opcao of
+      1..10:
+        begin
+          Writeln;
+          Writeln('Funcionalidade ainda nao implementada.');
+          Writeln;
+          Write('Pressione Enter para continuar...');
+          ReadLn;
+        end;
+
+      0:
+        begin
+          Writeln;
+          Writeln('Encerrando...');
+        end;
+
+    else
+      begin
+        Writeln;
+        Writeln('Opcao invalida.');
+        Writeln;
+        Write('Pressione Enter para continuar...');
+        ReadLn;
+      end;
+    end;
+
+  until Opcao = 0;
+
+  ApagaArvBin(Raiz);
 
   Halt(0);
 end.
