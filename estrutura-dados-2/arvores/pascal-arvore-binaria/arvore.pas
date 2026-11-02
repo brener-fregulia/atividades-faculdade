@@ -221,6 +221,84 @@ begin
     MaiorCaminho := 'D' + MaiorCaminho(Raiz^.ArvDir);
 end;
 
+procedure Pausar;
+begin
+  Writeln;
+  Write('Pressione Enter para continuar...');
+  ReadLn;
+end;
+
+procedure ExecutaInsercao(var Raiz: PtrNodoArvBin);
+var
+  Valor: Integer;
+begin
+  Writeln;
+  Write('Digite o valor a inserir: ');
+  ReadLn(Valor);
+
+  if InsereArvBin(Raiz, Valor) then
+    Writeln('Valor ', Valor, ' inserido com sucesso.')
+  else
+    Writeln('O valor ', Valor, ' ja existe na arvore.');
+
+  Pausar;
+end;
+
+procedure ExecutaPreOrdem(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+  Writeln('Percurso em pre-ordem:');
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else
+  begin
+    PreOrdem(Raiz);
+    Writeln;
+  end;
+
+  Pausar;
+end;
+
+procedure ExecutaEmOrdem(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+  Writeln('Percurso em ordem:');
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else
+  begin
+    EmOrdem(Raiz);
+    Writeln;
+  end;
+
+  Pausar;
+end;
+
+procedure ExecutaPosOrdem(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+  Writeln('Percurso em pos-ordem:');
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else
+  begin
+    PosOrdem(Raiz);
+    Writeln;
+  end;
+
+  Pausar;
+end;
+
+procedure NaoImplementado;
+begin
+  Writeln;
+  Writeln('Funcionalidade ainda nao implementada.');
+  Pausar;
+end;
+
 procedure ExibeMenu;
 begin
   Writeln('===================================');
@@ -243,7 +321,7 @@ end;
 
 var
   Raiz: PtrNodoArvBin;
-  Opcao, Valor: Integer;
+  Opcao: Integer;
 
 begin
   InicializaArvBin(Raiz);
@@ -255,29 +333,22 @@ begin
 
     case Opcao of
       1:
-        begin
-          Writeln;
-          Write('Digite o valor a inserir: ');
-          ReadLn(Valor);
+        ExecutaInsercao(Raiz);
 
-          if InsereArvBin(Raiz, Valor) then
-            Writeln('Valor ', Valor, ' inserido com sucesso.')
-          else
-            Writeln('O valor ', Valor, ' ja existe na arvore.');
+      2..3:
+        NaoImplementado;
 
-          Writeln;
-          Write('Pressione Enter para continuar...');
-          ReadLn;
-        end;
+      4:
+        ExecutaPreOrdem(Raiz);
 
-      2..10:
-        begin
-          Writeln;
-          Writeln('Funcionalidade ainda nao implementada.');
-          Writeln;
-          Write('Pressione Enter para continuar...');
-          ReadLn;
-        end;
+      5:
+        ExecutaEmOrdem(Raiz);
+
+      6:
+        ExecutaPosOrdem(Raiz);
+
+      7..10:
+        NaoImplementado;
 
       0:
         begin
@@ -289,9 +360,7 @@ begin
       begin
         Writeln;
         Writeln('Opcao invalida.');
-        Writeln;
-        Write('Pressione Enter para continuar...');
-        ReadLn;
+        Pausar;
       end;
     end;
 
