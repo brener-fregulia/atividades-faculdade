@@ -201,6 +201,52 @@ begin
   PesquisaArvBinPesq := Ptr;
 end;
 
+function ExcluiArvBin(
+  var Raiz: PtrNodoArvBin;
+  X: Integer
+): Boolean;
+var
+  Alvo, Sucessor, Filho: PtrNodoArvBin;
+begin
+  Alvo := PesquisaArvBinPesq(Raiz, X);
+
+  if Alvo = nil then
+  begin
+    ExcluiArvBin := False;
+    Exit;
+  end;
+
+  if (Alvo^.ArvEsq <> nil) and (Alvo^.ArvDir <> nil) then
+  begin
+    Sucessor := Alvo^.ArvDir;
+
+    while Sucessor^.ArvEsq <> nil do
+      Sucessor := Sucessor^.ArvEsq;
+
+    Alvo^.Conteudo := Sucessor^.Conteudo;
+    Alvo := Sucessor;
+  end;
+
+  if Alvo^.ArvEsq <> nil then
+    Filho := Alvo^.ArvEsq
+  else
+    Filho := Alvo^.ArvDir;
+
+  if Filho <> nil then
+    Filho^.Pai := Alvo^.Pai;
+
+  if Alvo^.Pai = nil then
+    Raiz := Filho
+  else if Alvo = Alvo^.Pai^.ArvEsq then
+    Alvo^.Pai^.ArvEsq := Filho
+  else
+    Alvo^.Pai^.ArvDir := Filho;
+
+  Dispose(Alvo);
+
+  ExcluiArvBin := True;
+end;
+
 function MenorValor(Raiz: PtrNodoArvBin): PtrNodoArvBin;
 begin
   if Raiz^.ArvEsq <> nil then
@@ -452,10 +498,19 @@ begin
   Pausar;
 end;
 
-procedure NaoImplementado;
+procedure ExecutaExclusao(var Raiz: PtrNodoArvBin);
+var
+  Valor: Integer;
 begin
   Writeln;
-  Writeln('Funcionalidade ainda nao implementada.');
+  Write('Digite o valor a excluir: ');
+  ReadLn(Valor);
+
+  if ExcluiArvBin(Raiz, Valor) then
+    Writeln('Valor ', Valor, ' excluido com sucesso.')
+  else
+    Writeln('O valor ', Valor, ' nao pertence a arvore.');
+
   Pausar;
 end;
 
@@ -496,7 +551,7 @@ begin
         ExecutaInsercao(Raiz);
 
       2:
-        NaoImplementado;
+        ExecutaExclusao(Raiz);
 
       3:
         ExecutaPesquisa(Raiz);
