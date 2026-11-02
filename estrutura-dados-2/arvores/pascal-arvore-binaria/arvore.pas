@@ -327,6 +327,18 @@ begin
   Pausar;
 end;
 
+procedure ExecutaAltura(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else
+    Writeln('Altura da arvore: ', Altura(Raiz));
+
+  Pausar;
+end;
+
 procedure NaoImplementado;
 begin
   Writeln;
@@ -388,7 +400,10 @@ begin
       7:
         ExecutaFolhas(Raiz);
 
-      8..10:
+      8:
+        ExecutaAltura(Raiz);
+
+      9..10:
         NaoImplementado;
 
       0:
