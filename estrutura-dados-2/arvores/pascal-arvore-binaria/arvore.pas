@@ -126,6 +126,51 @@ begin
   end;
 end;
 
+function VerificaCompleta(
+  Raiz: PtrNodoArvBin;
+  Indice, Quantidade: Integer
+): Boolean;
+begin
+  if Raiz = nil then
+  begin
+    VerificaCompleta := True;
+    Exit;
+  end;
+
+  if Indice >= Quantidade then
+  begin
+    VerificaCompleta := False;
+    Exit;
+  end;
+
+  VerificaCompleta :=
+    VerificaCompleta(
+      Raiz^.ArvEsq,
+      2 * Indice + 1,
+      Quantidade
+    )
+    and
+    VerificaCompleta(
+      Raiz^.ArvDir,
+      2 * Indice + 2,
+      Quantidade
+    );
+end;
+
+function ArvoreCompleta(Raiz: PtrNodoArvBin): Boolean;
+var
+  Quantidade: Integer;
+begin
+  Quantidade := 0;
+  ContaNodos(Raiz, Quantidade);
+
+  ArvoreCompleta := VerificaCompleta(
+    Raiz,
+    0,
+    Quantidade
+  );
+end;
+
 procedure SomaNodos(Raiz: PtrNodoArvBin; var Soma: Integer);
 begin
   if Raiz <> nil then
@@ -393,6 +438,20 @@ begin
   Pausar;
 end;
 
+procedure ExecutaArvoreCompleta(Raiz: PtrNodoArvBin);
+begin
+  Writeln;
+
+  if Raiz = nil then
+    Writeln('Arvore vazia.')
+  else if ArvoreCompleta(Raiz) then
+    Writeln('A arvore e completa.')
+  else
+    Writeln('A arvore nao e completa.');
+
+  Pausar;
+end;
+
 procedure NaoImplementado;
 begin
   Writeln;
@@ -461,7 +520,7 @@ begin
         ExecutaNivel(Raiz);
 
       10:
-        NaoImplementado;
+        ExecutaArvoreCompleta(Raiz);
 
       0:
         begin
