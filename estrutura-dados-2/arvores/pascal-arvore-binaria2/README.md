@@ -1,0 +1,1 @@
+Inserir elementos em uma árvore, considerando que só é permitido descer o nível quando o nível anterior da árvore estiver completo. Os elementos com maior valor sempre são deslocados para o nível superior (sempre comparados com o pai)
